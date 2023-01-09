@@ -191,7 +191,7 @@ def ask(request):
         raw=None
     )
 
-    # TODO: is audio not needed
+    # TODO: is audio not needed 
     print(f"log2: {response} \n answer: {answer}")
 
     question = Question(question=question_asked, answer=answer, context=context, audio_src_url="response['item']['audio_src']")
