@@ -94,7 +94,11 @@
         data: $("form").serialize(),
         datatype: "json",
         encode: true
-      }).done(function(data) {
+      }).fail(function(data) {
+        console.log(data)
+        }
+      )
+      .done(function(data) {
         $(".buttons").hide();
 
         var audio = document.getElementById('audio');

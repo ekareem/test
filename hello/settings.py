@@ -24,12 +24,12 @@ if 'SECRET_KEY' in os.environ:
 if IS_HEROKU:
     ALLOWED_HOSTS = ["*"]
 else:
-    ALLOWED_HOSTS = ["0.0.0.0", "127.0.0.1"]
+    ALLOWED_HOSTS = ["0.0.0.0", "127.0.0.1","localhost"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-if not IS_HEROKU:
-    DEBUG = False
-
+# if not IS_HEROKU:
+#     DEBUG = False
+DEBUG=True
 CSRF_TRUSTED_ORIGINS = ["https://www.askmybook.com", "http://127.0.0.1"]
 
 # Application definition

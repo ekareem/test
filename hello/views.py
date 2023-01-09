@@ -4,6 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from dotenv import load_dotenv
+import sys
 
 from .models import Question
 
@@ -125,6 +126,14 @@ def construct_prompt(question: str, context_embeddings: dict, df: pd.DataFrame) 
 
     return (header + "".join(chosen_sections) + question_1 + question_2 + question_3 + question_4 + question_5 + question_6 + question_7 + question_8 + question_9 + question_10 + "\n\n\nQ: " + question + "\n\nA: "), ("".join(chosen_sections))
 
+def uprint(*objects, sep=' ', end='\n', file=sys.stdout):
+    enc = file.encoding
+    if enc == 'UTF-8':
+        print(*objects, sep=sep, end=end, file=file)
+    else:
+        f = lambda obj: str(obj).encode(enc, errors='backslashreplace').decode(enc)
+        print(*map(f, objects), sep=sep, end=end, file=file)
+
 def answer_query_with_context(
     query: str,
     df: pd.DataFrame,
@@ -135,8 +144,8 @@ def answer_query_with_context(
         document_embeddings,
         df
     )
-
-    print("===\n", prompt)
+    
+    uprint("===\n", prompt)
 
     response = openai.Completion.create(
                 prompt=prompt,
@@ -151,26 +160,23 @@ def index(request):
 @csrf_exempt
 def ask(request):
     question_asked = request.POST.get("question", "")
-
     if not question_asked.endswith('?'):
         question_asked += '?'
 
     previous_question = Question.objects.filter(question=question_asked).first()
     audio_src_url = previous_question and previous_question.audio_src_url if previous_question else None
-
     if audio_src_url:
         print("previously asked and answered: " + previous_question.answer + " ( " + previous_question.audio_src_url + ")")
         previous_question.ask_count = previous_question.ask_count + 1
         previous_question.save()
         return JsonResponse({ "question": previous_question.question, "answer": previous_question.answer, "audio_src_url": audio_src_url, "id": previous_question.pk })
-
+ 
     df = pd.read_csv('book.pdf.pages.csv')
     document_embeddings = load_embeddings('book.pdf.embeddings.csv')
     answer, context = answer_query_with_context(question_asked, df, document_embeddings)
-
     project_uuid = '6314e4df'
     voice_uuid = '0eb3a3f1'
-
+   
     response = Resemble.v2.clips.create_sync(
         project_uuid,
         voice_uuid,
@@ -185,7 +191,10 @@ def ask(request):
         raw=None
     )
 
-    question = Question(question=question_asked, answer=answer, context=context, audio_src_url=response['item']['audio_src'])
+    # TODO: is audio not needed
+    print(f"log2: {response} \n answer: {answer}")
+
+    question = Question(question=question_asked, answer=answer, context=context, audio_src_url="response['item']['audio_src']")
     question.save()
 
     return JsonResponse({ "question": question.question, "answer": answer, "audio_src_url": question.audio_src_url, "id": question.pk })
