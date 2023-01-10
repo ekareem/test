@@ -124,7 +124,8 @@ def construct_prompt(question: str, context_embeddings: dict, df: pd.DataFrame) 
     question_9 = "\n\n\nQ: What is the best way to distribute surveys to test my product idea\n\nA: I use Google Forms and my email list / Twitter account. Works great and is 100% free."
     question_10 = "\n\n\nQ: How do you know, when to quit\n\nA: When I'm bored, no longer learning, not earning enough, getting physically unhealthy, etc… loads of reasons. I think the default should be to “quit” and work on something new. Few things are worth holding your attention for a long period of time."
 
-    return (header + "".join(chosen_sections) + question_1 + question_2 + question_3 + question_4 + question_5 + question_6 + question_7 + question_8 + question_9 + question_10 + "\n\n\nQ: " + question + "\n\nA: "), ("".join(chosen_sections))
+    #return (header + "".join(chosen_sections) + question_1 + question_2 + question_3 + question_4 + question_5 + question_6 + question_7 + question_8 + question_9 + question_10 + "\n\n\nQ: " + question + "\n\nA: "), ("".join(chosen_sections))
+    return ("".join(chosen_sections) +  "\n\n\nQ: " + question + "\n\nA: "), ("".join(chosen_sections))
 
 def uprint(*objects, sep=' ', end='\n', file=sys.stdout):
     enc = file.encoding
@@ -171,8 +172,8 @@ def ask(request):
         previous_question.save()
         return JsonResponse({ "question": previous_question.question, "answer": previous_question.answer, "audio_src_url": audio_src_url, "id": previous_question.pk })
  
-    df = pd.read_csv('book.pdf.pages.csv')
-    document_embeddings = load_embeddings('book.pdf.embeddings.csv')
+    df = pd.read_csv('book3.pdf.pages.csv')
+    document_embeddings = load_embeddings('book3.pdf.embeddings.csv')
     answer, context = answer_query_with_context(question_asked, df, document_embeddings)
     project_uuid = '6314e4df'
     voice_uuid = '0eb3a3f1'
