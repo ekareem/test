@@ -30,12 +30,6 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
-# book(s)
-*.pdf
-
-# generated data files
-*.csv
-
 # from python heroku
 venv
 *.pyc
